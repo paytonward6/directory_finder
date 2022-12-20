@@ -14,29 +14,53 @@ fn get_directories(path: &Path) -> Vec<PathBuf> {
     directories
 }
 
-fn find_directory(directories: &Vec<PathBuf>, fragment: &str) -> () {
-    match &directories.len() {
-        0 => println!(""),
-        1 => println!("{:?}", &directories[0]),
+fn goto_directory(directories: &Vec<PathBuf>, fragment: &str) -> () {
+    let dir_matches = find_matches(&directories, &fragment);
+    match &dir_matches.len() {
+        0 => eprintln!("No matches found"), // cd to dir
+        1 => println!("{:?}", &dir_matches[0]), // cd to only dir
         _ => {
-            for entry in directories {
-                match entry.file_stem() {
-                    Some(entry) => {
-                        let l_entry = entry.to_ascii_lowercase();
-                        match l_entry.to_str() {
-                            Some(hit) => {
-                                if hit.starts_with(fragment) {
-                                    println!("{}", hit);
-                                }
-                            },
-                            None => println!("bad"),
-                        }
-                    },
-                    None => println!("No file stem found in directories"),
-                }
-            }
+            println!("{}", choose_from_dirs(dir_matches));
         }
     }
+}
+
+fn choose_from_dirs(dir_matches: Vec<String>) -> String {
+    eprintln!("Select a directory: ");
+    let stdin = io::stdin();
+    for (pos, item) in dir_matches.iter().enumerate() {
+        eprintln!("\t{}: {}", pos + 1, item);
+    }
+    let mut user_input = String::new();
+    stdin.read_line(&mut user_input).expect("Invalid input provided.");
+    let result = user_input.trim().parse().unwrap_or(0);
+    if 0 < result && result < dir_matches.len() + 1 {
+        return dir_matches[result - 1].to_string();
+    }
+    else {
+        return "".to_string();
+    }
+}
+
+fn find_matches(directories: &Vec<PathBuf>, fragment: &str) -> Vec<String>{
+    let mut strings: Vec<String> = Vec::new();
+    for entry in directories {
+        match entry.file_stem() {
+            Some(entry) => {
+                let l_entry = entry.to_ascii_lowercase();
+                match l_entry.to_str() {
+                    Some(hit) => {
+                        if hit.starts_with(fragment) {
+                            strings.push(String::from(hit));
+                        }
+                    },
+                    None => eprintln!("bad"),
+                }
+            },
+            None => eprintln!("No file stem found in directories"),
+        }
+    }
+    strings
 }
 
 fn main() {
@@ -46,5 +70,5 @@ fn main() {
 
     let directories: Vec<PathBuf> = get_directories(path);
 
-    find_directory(&directories, &fragment);
+    goto_directory(&directories, &fragment);
 }
