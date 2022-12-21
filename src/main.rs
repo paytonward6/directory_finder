@@ -21,7 +21,7 @@ fn goto_directory(directories: &Vec<PathBuf>, fragment: &str) -> () {
     let dir_matches = find_matches(&directories, &fragment);
     match &dir_matches.len() {
         0 => eprintln!("No matches found"), // cd to dir
-        1 => println!("{:?}", &dir_matches[0]), // cd to only dir
+        1 => println!("{}", &dir_matches[0].to_string()), // cd to only dir
         _ => {
             println!("{}", choose_from_dirs(dir_matches));
         }
@@ -70,10 +70,12 @@ fn find_matches(directories: &Vec<PathBuf>, fragment: &str) -> Vec<String>{
 
 fn main() {
     let args: Vec<String> = env::args().collect();
-    let path = Path::new(&args[1]);
-    let fragment = &args[2];
+    if args.len() >= 3 {
+        let path = Path::new(&args[1]);
+        let fragment = &args[2];
 
-    let directories: Vec<PathBuf> = get_directories(path);
+        let directories: Vec<PathBuf> = get_directories(path);
 
-    goto_directory(&directories, &fragment);
+        goto_directory(&directories, &fragment);
+    }
 }
