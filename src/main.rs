@@ -3,6 +3,7 @@ use std::path::PathBuf;
 use std::io;
 use std::env;
 
+// Get all level 1 subdirectories at a given path
 fn get_directories(path: &Path) -> Vec<PathBuf> {
     let mut directories: Vec<PathBuf> = Vec::new();
     for entry in path.read_dir().expect("Attempt to read contents of directory has failed!") {
@@ -14,6 +15,8 @@ fn get_directories(path: &Path) -> Vec<PathBuf> {
     directories
 }
 
+// Go directly to directory or give prompt to choose directory depending
+// on the number of matches
 fn goto_directory(directories: &Vec<PathBuf>, fragment: &str) -> () {
     let dir_matches = find_matches(&directories, &fragment);
     match &dir_matches.len() {
@@ -25,6 +28,7 @@ fn goto_directory(directories: &Vec<PathBuf>, fragment: &str) -> () {
     }
 }
 
+// Prompt to choose directory since there are multiple matches
 fn choose_from_dirs(dir_matches: Vec<String>) -> String {
     eprintln!("Select a directory: ");
     let stdin = io::stdin();
@@ -42,6 +46,7 @@ fn choose_from_dirs(dir_matches: Vec<String>) -> String {
     }
 }
 
+// Find non-case sensitive directory matches of input
 fn find_matches(directories: &Vec<PathBuf>, fragment: &str) -> Vec<String>{
     let mut strings: Vec<String> = Vec::new();
     for entry in directories {
@@ -50,11 +55,11 @@ fn find_matches(directories: &Vec<PathBuf>, fragment: &str) -> Vec<String>{
                 let l_entry = entry.to_ascii_lowercase();
                 match l_entry.to_str() {
                     Some(hit) => {
-                        if hit.starts_with(fragment) {
-                            strings.push(String::from(hit));
+                        if hit.starts_with(&fragment.to_ascii_lowercase()) {
+                            strings.push(String::from(entry.to_str().unwrap()));
                         }
                     },
-                    None => eprintln!("bad"),
+                    None => eprintln!("Unable to convert match to string."),
                 }
             },
             None => eprintln!("No file stem found in directories"),
