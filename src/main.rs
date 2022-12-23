@@ -31,10 +31,10 @@ fn goto_directory(directories: &Vec<PathBuf>, fragment: &str) -> () {
 // Prompt to choose directory since there are multiple matches
 fn choose_from_dirs(dir_matches: Vec<String>) -> String {
     eprintln!("Select a directory: ");
-    let stdin = io::stdin();
     for (pos, item) in dir_matches.iter().enumerate() {
         eprintln!("\t{}: {}", pos + 1, item);
     }
+    let stdin = io::stdin();
     let mut user_input = String::new();
     stdin.read_line(&mut user_input).expect("Invalid input provided.");
     let result = user_input.trim().parse().unwrap_or(0);
@@ -75,7 +75,7 @@ fn main() {
         let fragment = &args[2];
 
         let directories: Vec<PathBuf> = get_directories(path);
-
         goto_directory(&directories, &fragment);
     }
+    // else print nothing and `cd` to base directory in .bashrc setup
 }
